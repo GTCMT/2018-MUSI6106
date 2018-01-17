@@ -172,7 +172,7 @@ Error_t CAudioFileIf::setPosition( long long iFrame /*= 0*/ )
     if (!isInitialized())
         return kNotInitializedError;
 
-    if (iFrame <= 0 || iFrame >= getLengthIntern())
+    if (iFrame < 0 || iFrame >= getLengthIntern())
         return kFunctionInvalidArgsError;
 
     return setPositionIntern(iFrame);

@@ -71,13 +71,14 @@ public:
     */
     virtual Error_t closeFile () = 0;
 
-    /*! read data from file
+    /*! read data from file and increments read position
     \param ppfAudioData: [channels][iNumFrames]
-    \param iNumFrames: number of frames to read (per channel)
+    \param iNumFrames: number of frames to read (per channel), is updated to the number of frames actually read
     \return Error_t
     */
     virtual Error_t readData (float **ppfAudioData, long long int &iNumFrames);
-    /*! write data to file
+    
+    /*! write data to file and increments write position
     \param ppfAudioData: [channels][iNumFrames]
     \param iNumFrames: number of frames to write (per channel)
     \return Error_t
