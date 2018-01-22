@@ -17,44 +17,91 @@ void    showClInfo ();
 int main(int argc, char* argv[])
 {
     std::string             sInputFilePath,                 //!< file paths
-                            sOutputFilePath;
+        sOutputFilePath;
 
-    long long               iInFileLength       = 0;        //!< length of input file
+    static const int        kBlockSize = 1024;
 
-    clock_t                 time                = 0;
+    clock_t                 time = 0;
 
-    float                   **ppfAudioData      = 0;
+    float                   **ppfAudioData = 0;
 
-    CAudioFileIf            *phAudioFile        = 0;
+    CAudioFileIf            *phAudioFile = 0;
+    std::fstream            hOutputFile;
+    CAudioFileIf::FileSpec_t stFileSpec;
 
-    showClInfo ();
+    showClInfo();
 
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
+    if (argc < 2)
+    {
+        cout << "Missing audio input path!";
+        return -1;
+    }
+    else
+    {
+        sInputFilePath = argv[1];
+        sOutputFilePath = sInputFilePath + ".txt";
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     // open the input wave file
+    CAudioFileIf::create(phAudioFile);
+    phAudioFile->openFile(sInputFilePath, CAudioFileIf::kFileRead);
+    if (!phAudioFile->isOpen())
+    {
+        cout << "Wave file open error!";
+        return -1;
+    }
+    phAudioFile->getFileSpec(stFileSpec);
+
+    //////////////////////////////////////////////////////////////////////////////
+    // open the output text file
+    hOutputFile.open(sOutputFilePath.c_str(), std::ios::out);
+    if (!hOutputFile.is_open())
+    {
+        cout << "Text file open error!";
+        return -1;
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     // allocate memory
-    time                    = clock();
+    ppfAudioData = new float*[stFileSpec.iNumChannels];
+    for (int i = 0; i < stFileSpec.iNumChannels; i++)
+        ppfAudioData[i] = new float[kBlockSize];
 
+    time = clock();
+    //////////////////////////////////////////////////////////////////////////////
     // get audio data and write it to the output file
+    while (!phAudioFile->isEof())
+    {
+        long long iNumFrames = kBlockSize;
+        phAudioFile->readData(ppfAudioData, iNumFrames);
 
+        for (int i = 0; i < iNumFrames; i++)
+        {
+            for (int c = 0; c < stFileSpec.iNumChannels; c++)
+            {
+                hOutputFile << ppfAudioData[c][i] << "\t";
+            }
+            hOutputFile << endl;
+        }
+    }
 
-    cout << "reading/writing done in: \t"    << (clock()-time)*1.F/CLOCKS_PER_SEC << " seconds." << endl;
-    //////////////////////////////////////////////////////////////////////////////
-    // get audio info and print it to stdout
-
-    //////////////////////////////////////////////////////////////////////////////
-    // do processing
-    cout << "Hello there!" << endl << endl;
+    cout << "reading/writing done in: \t" << (clock() - time)*1.F / CLOCKS_PER_SEC << " seconds." << endl;
 
     //////////////////////////////////////////////////////////////////////////////
     // clean-up
+    CAudioFileIf::destroy(phAudioFile);
+    hOutputFile.close();
+
+    for (int i = 0; i < stFileSpec.iNumChannels; i++)
+        delete[] ppfAudioData[i];
+    delete[] ppfAudioData;
+    ppfAudioData = 0;
 
     return 0;
-    
+
 }
 
 
