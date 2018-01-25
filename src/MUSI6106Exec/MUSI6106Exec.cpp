@@ -5,6 +5,7 @@
 #include "MUSI6106Config.h"
 
 #include "AudioFileIf.h"
+#include "RingBuffer.h"
 
 using std::cout;
 using std::endl;
@@ -16,45 +17,42 @@ void    showClInfo ();
 // main function
 int main(int argc, char* argv[])
 {
-    std::string             sInputFilePath,                 //!< file paths
-                            sOutputFilePath;
-
-    long long               iInFileLength       = 0;        //!< length of input file
+    // You don't need to use an audio file this time, though you can try if you want.
+    // std::string             sInputFilePath,                 //!< file paths
+    //                         sOutputFilePath;
+    // static const int        kBlockSize          = 1024;
+    // float                   **ppfAudioData      = 0;
+    // CAudioFileIf            *phAudioFile        = 0;
+    // CAudioFileIf::FileSpec_t stFileSpec;
+    // long long               iInFileLength       = 0;        //!< length of input file
 
     clock_t                 time                = 0;
 
-    float                   **ppfAudioData      = 0;
-
-    CAudioFileIf            *phAudioFile        = 0;
+    CRingBuffer<float>      *pCRingBuffer       = 0;
+    float                   *pfTestSignal       = 0;
+    float                   fGain               = 1.f;
 
     showClInfo ();
-
-    //////////////////////////////////////////////////////////////////////////////
-    // parse command line arguments
-
-    //////////////////////////////////////////////////////////////////////////////
-    // open the input wave file
 
     //////////////////////////////////////////////////////////////////////////////
     // allocate memory
     time                    = clock();
 
-    // get audio data and write it to the output file
 
+    // fill the test signal (e.g., a unit impulse)
 
-    cout << "reading/writing done in: \t"    << (clock()-time)*1.F/CLOCKS_PER_SEC << " seconds." << endl;
-    //////////////////////////////////////////////////////////////////////////////
-    // get audio info and print it to stdout
 
     //////////////////////////////////////////////////////////////////////////////
-    // do processing
-    cout << "Hello there!" << endl << endl;
+    // do processing and tests
+
+
+
+    cout << "processing done in: \t"    << (clock()-time)*1.F/CLOCKS_PER_SEC << " seconds." << endl;
 
     //////////////////////////////////////////////////////////////////////////////
     // clean-up
 
     return 0;
-    
 }
 
 
