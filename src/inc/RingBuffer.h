@@ -38,10 +38,11 @@ public:
         // to be implemented
     }
     
-    /*! return the value at the current read index
+    /*! return the value at the index with an optional arbitrary offset
+    \param iOffset: read at offset from read index
     \return type T the value from the read index
     */
-    T get () const
+    T get (int iOffset = 0) const
     {
         // to be implemented
     }
@@ -93,15 +94,6 @@ public:
     \return type T the value from the read index
     */
     T getPostInc ()
-    {
-        // to be implemented
-    }
-
-    /*! return the value at the index with an arbitrary offset
-    \param iOffset: read at offset from read index
-    \return type T the value from the read index
-    */
-    T get (int iOffset = 0) const
     {
         // to be implemented
     }
