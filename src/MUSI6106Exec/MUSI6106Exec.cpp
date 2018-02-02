@@ -5,6 +5,7 @@
 #include "MUSI6106Config.h"
 
 #include "AudioFileIf.h"
+#include "CombFilterIf.h"
 
 using std::cout;
 using std::endl;
@@ -29,6 +30,8 @@ int main(int argc, char* argv[])
     std::fstream            hOutputFile;
     CAudioFileIf::FileSpec_t stFileSpec;
 
+    CCombFilterIf   *pInstance = 0;
+    CCombFilterIf::create(pInstance);
     showClInfo();
 
     //////////////////////////////////////////////////////////////////////////////
