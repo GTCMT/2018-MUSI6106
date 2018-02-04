@@ -93,10 +93,22 @@ public:
     \param fOffset: read at offset from read index
     \return float the value from the read index
     */
-    T get (float fOffset = 0) const
+    T get (float fOffset = 0.f) const
     {
-        // dummy
-        return 0;
+        if (fOffset == 0.f)
+            return m_ptBuff[m_iReadIdx];
+        else
+        {
+            assert (std::abs(fOffset) <= m_iBuffLength);
+
+            int iRead   = m_iReadIdx + static_cast<int>(fOffset);
+            while (iRead > m_iBuffLength-1)
+                iRead  -= m_iBuffLength;
+            while (iRead < 0)
+                iRead  += m_iBuffLength;
+
+            return m_ptBuff[iRead];
+        }
     }
 
     /*! return the values starting at the current read index

@@ -186,48 +186,73 @@ SUITE(RingBuff)
         }
     }
 
-    TEST_FIXTURE(RingBuffer, RbReadBlock)
+    TEST_FIXTURE(RingBuffer, getIntOffset)
     {
-        for (int i = 0; i < 2*m_iRingBuffLength; i++)
-        {
-            m_pCRingBuffer->putPostInc (static_cast<float>(i));
-        }
-        m_pCRingBuffer->setReadIdx(5);
-        m_pCRingBuffer->getPostInc(m_pfData, m_iRingBuffLength);
-
-        for (int i=0;i< m_iRingBuffLength; i++)
-        {
-            CHECK_EQUAL((i+5)%m_iRingBuffLength + m_iRingBuffLength,m_pfData[i]);
-        }
-    }
-
-    TEST_FIXTURE(RingBuffer, RbWriteBlock)
-    {
-        m_pCRingBuffer->putPostInc (m_pfData, 11);
-        m_pCRingBuffer->putPostInc (&m_pfData[11], m_iRingBuffLength);
-        m_pCRingBuffer->setReadIdx(11);
-
-        for (int i = 11; i < 11+m_iRingBuffLength; i++)
-        {
-            CHECK_EQUAL(m_pfData[i], m_pCRingBuffer->getPostInc());
-        }
-    }
-
-    TEST_FIXTURE(RingBuffer, RbFracDelay)
-    {
+        // fill with incremental values
         for (int i = 0; i < m_iRingBuffLength; i++)
             m_pCRingBuffer->putPostInc (1.F*i);
 
-        float fValue    = m_pCRingBuffer->get(.7F);
-        CHECK_CLOSE(.7F, fValue, 1e-4);
+        m_pCRingBuffer->setReadIdx(0);
+        float fValue = 0.f;
 
-        fValue          = m_pCRingBuffer->get(-1.8F);
-        CHECK_CLOSE(14.2F, fValue, 1e-4);
+        // ordinary range for the offset index
+        for (int i = 0; i < m_iRingBuffLength; i++) {
+            fValue = m_pCRingBuffer->get(i);
+            CHECK_EQUAL(static_cast<float>(i), fValue);            
+        }
 
-        m_pCRingBuffer->setReadIdx(1);
-        fValue          = m_pCRingBuffer->get(-m_iRingBuffLength+1.F);
-        CHECK_CLOSE(2.F, fValue, 1e-4);
+        fValue = m_pCRingBuffer->get(m_iRingBuffLength); // 16
+        CHECK_EQUAL(0.F, fValue);
+
+        for (int i = 0; i < m_iRingBuffLength; i++) {
+            int iNegIdx = -i - 1; // [-1, -m_iRingBuffLength]
+            fValue = m_pCRingBuffer->get(iNegIdx);
+            CHECK_EQUAL(static_cast<float>(m_iRingBuffLength) + static_cast<float>(iNegIdx), fValue);
+        }
     }
+
+    // TEST_FIXTURE(RingBuffer, RbReadBlock)
+    // {
+    //     for (int i = 0; i < 2*m_iRingBuffLength; i++)
+    //     {
+    //         m_pCRingBuffer->putPostInc (static_cast<float>(i));
+    //     }
+    //     m_pCRingBuffer->setReadIdx(5);
+    //     m_pCRingBuffer->getPostInc(m_pfData, m_iRingBuffLength);
+
+    //     for (int i=0;i< m_iRingBuffLength; i++)
+    //     {
+    //         CHECK_EQUAL((i+5)%m_iRingBuffLength + m_iRingBuffLength,m_pfData[i]);
+    //     }
+    // }
+
+    // TEST_FIXTURE(RingBuffer, RbWriteBlock)
+    // {
+    //     m_pCRingBuffer->putPostInc (m_pfData, 11);
+    //     m_pCRingBuffer->putPostInc (&m_pfData[11], m_iRingBuffLength);
+    //     m_pCRingBuffer->setReadIdx(11);
+
+    //     for (int i = 11; i < 11+m_iRingBuffLength; i++)
+    //     {
+    //         CHECK_EQUAL(m_pfData[i], m_pCRingBuffer->getPostInc());
+    //     }
+    // }
+
+    // TEST_FIXTURE(RingBuffer, RbFracDelay)
+    // {
+    //     for (int i = 0; i < m_iRingBuffLength; i++)
+    //         m_pCRingBuffer->putPostInc (1.F*i);
+
+    //     float fValue    = m_pCRingBuffer->get(.7F);
+    //     CHECK_CLOSE(.7F, fValue, 1e-4);
+
+    //     fValue          = m_pCRingBuffer->get(-1.8F);
+    //     CHECK_CLOSE(14.2F, fValue, 1e-4);
+
+    //     m_pCRingBuffer->setReadIdx(1);
+    //     fValue          = m_pCRingBuffer->get(-m_iRingBuffLength+1.F);
+    //     CHECK_CLOSE(2.F, fValue, 1e-4);
+    // }
 }
 
 #endif //WITH_TESTS
