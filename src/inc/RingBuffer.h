@@ -101,7 +101,7 @@ public:
         {
             assert (std::abs(fOffset) <= m_iBuffLength);
 
-            int iRead   = m_iReadIdx + static_cast<int>(fOffset);
+            int iRead   = m_iReadIdx + static_cast<int>(std::floor(fOffset));
             while (iRead > m_iBuffLength-1)
                 iRead  -= m_iBuffLength;
             while (iRead < 0)
