@@ -1,4 +1,4 @@
-#include "Musi6106Config.h"
+#include "MUSI6106Config.h"
 
 #ifdef WITH_TESTS
 #include <cassert>
