@@ -237,7 +237,10 @@ SUITE(RingBuff)
         float fValue    = m_pCRingBuffer->get(.7F);
         CHECK_CLOSE(.7F, fValue, 1e-4);
 
-        fValue          = m_pCRingBuffer->get(-1.8F);
+        fValue = m_pCRingBuffer->get(-.5F);
+        CHECK_CLOSE(7.5, fValue, 1e-4);
+
+        fValue = m_pCRingBuffer->get(-1.8F);
         CHECK_CLOSE(14.2F, fValue, 1e-4);
 
         m_pCRingBuffer->setReadIdx(1);
