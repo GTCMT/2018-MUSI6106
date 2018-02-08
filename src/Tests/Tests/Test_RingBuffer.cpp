@@ -185,6 +185,16 @@ SUITE(RingBuff)
         m_pCRingBuffer->setWriteIdx(-RingBuffer::m_iRingBuffLength+1);
         CHECK_EQUAL(1, m_pCRingBuffer->getReadIdx());
         CHECK_EQUAL(1, m_pCRingBuffer->getWriteIdx());
+
+        // extreme indices
+        m_pCRingBuffer->setReadIdx(RingBuffer::m_iRingBuffLength * 5 - 1);
+        m_pCRingBuffer->setWriteIdx(RingBuffer::m_iRingBuffLength * 5 - 1);
+        CHECK_EQUAL(RingBuffer::m_iRingBuffLength - 1, m_pCRingBuffer->getReadIdx());
+        CHECK_EQUAL(RingBuffer::m_iRingBuffLength - 1, m_pCRingBuffer->getWriteIdx());
+        m_pCRingBuffer->setReadIdx(-RingBuffer::m_iRingBuffLength * 5 - 1);
+        m_pCRingBuffer->setWriteIdx(-RingBuffer::m_iRingBuffLength * 5 - 1);
+        CHECK_EQUAL(RingBuffer::m_iRingBuffLength - 1, m_pCRingBuffer->getReadIdx());
+        CHECK_EQUAL(RingBuffer::m_iRingBuffLength - 1, m_pCRingBuffer->getWriteIdx());
     }
 
     // Simple test to check for overflow
