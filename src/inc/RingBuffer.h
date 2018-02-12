@@ -46,7 +46,8 @@ public:
     */
     void putPostInc (const T* ptNewBuff, int iLength)
     {
-        // dummy
+        put(ptNewBuff, iLength);
+        incIdx(m_iWriteIdx, iLength);
     }
 
     /*! add a new value of type T to write index
@@ -65,7 +66,14 @@ public:
     */
     void put(const T* ptNewBuff, int iLength)
     {
-        // dummy
+        assert(iLength <= m_iBuffLength && iLength >= 0);
+
+        // copy two parts: to the end of buffer and after wrap around
+        int iNumValues2End      = std::min(iLength,m_iBuffLength - m_iWriteIdx);
+
+        memcpy (&m_ptBuff[m_iWriteIdx], ptNewBuff, sizeof(T)*iNumValues2End);
+        if ((iLength - iNumValues2End)>0)
+            memcpy (m_ptBuff, &ptNewBuff[iNumValues2End], sizeof(T)*(iLength - iNumValues2End));
     }
     
     /*! return the value at the current read index and increment the read pointer
@@ -95,8 +103,23 @@ public:
     */
     T get (float fOffset = 0) const
     {
-        // dummy
-        return 0;
+        if (fOffset == 0)
+            return m_ptBuff[m_iReadIdx];
+        else
+        {
+            
+            // compute fraction for linear interpolation 
+            int     iOffset = static_cast<int>(std::floor(fOffset));
+            float   fFrac   = fOffset - iOffset;
+            int     iRead   = m_iReadIdx + iOffset;
+            while (iRead > m_iBuffLength-1)
+                iRead  -= m_iBuffLength;
+            while (iRead < 0)
+                iRead  += m_iBuffLength;
+
+            return (1-fFrac) * m_ptBuff[iRead] +
+                       fFrac * m_ptBuff[(iRead+1) % m_iBuffLength];
+        }
     }
 
     /*! return the values starting at the current read index
