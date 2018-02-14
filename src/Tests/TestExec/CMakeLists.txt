@@ -7,6 +7,7 @@ set (TestLIB UnitTest++)
 #set (VibratoLIB Vibrato)
 set (AudioLIB AudioFileIO)
 set (SndLIB sndlib)
+set (FftLIB Fft)
 
 ##############################################################
 ## unitTest++
@@ -60,7 +61,7 @@ if (WITH_TESTS)
     add_executable(${APP} ${${APP}_SOURCES} ${${APP}_HEADERS} ${${APP}_SOURCES_TEST} ${${APP}_HEADERS_TEST})
 
     # link the libraries
-    target_link_libraries(${APP} ${LIB} ${TestLIB} ${FilterLIB} ${DtwLIB} ${VibratoLIB} ${AudioLIB} ${SndLIB} ${OS_LIBS})
+    target_link_libraries(${APP} ${LIB} ${TestLIB} ${FftLIB} ${FilterLIB} ${DtwLIB} ${VibratoLIB} ${AudioLIB} ${SndLIB} ${OS_LIBS})
 endif (WITH_TESTS)
 
 
