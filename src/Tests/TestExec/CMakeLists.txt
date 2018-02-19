@@ -4,7 +4,7 @@ set (TestLIB UnitTest++)
 
 #set (FilterLIB CombFilter)
 #set (DtwLIB Dtw)
-#set (VibratoLIB Vibrato)
+set (VibratoLIB Vibrato)
 set (AudioLIB AudioFileIO)
 set (SndLIB sndlib)
 set (FftLIB Fft)
