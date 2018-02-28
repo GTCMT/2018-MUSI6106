@@ -2,7 +2,7 @@
 // standard headers
 
 // project headers
-#include "MUSI6106Config.h"
+#include "MUSI8903Config.h"
 
 #include "ErrorDef.h"
 #include "Util.h"
@@ -36,13 +36,13 @@ const int  CCombFilterIf::getVersion (const Version_t eVersionIdx)
     switch (eVersionIdx)
     {
     case kMajor:
-        iVersion    = MUSI6106_VERSION_MAJOR; 
+        iVersion    = MUSI8903_VERSION_MAJOR; 
         break;
     case kMinor:
-        iVersion    = MUSI6106_VERSION_MINOR;
+        iVersion    = MUSI8903_VERSION_MINOR; 
         break;
     case kPatch:
-        iVersion    = MUSI6106_VERSION_PATCH;
+        iVersion    = MUSI8903_VERSION_PATCH; 
         break;
     case kNumVersionInts:
         iVersion    = -1;

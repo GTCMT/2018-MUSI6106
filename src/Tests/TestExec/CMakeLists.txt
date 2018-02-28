@@ -2,7 +2,7 @@ set (APP TestExec)
 
 set (TestLIB UnitTest++)
 
-#set (FilterLIB CombFilter)
+set (FilterLIB CombFilter)
 #set (DtwLIB Dtw)
 #set (VibratoLIB Vibrato)
 set (AudioLIB AudioFileIO)

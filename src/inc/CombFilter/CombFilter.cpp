@@ -3,7 +3,7 @@
 #include <limits>
 
 // project headers
-#include "MUSI6106Config.h"
+#include "MUSI8903Config.h"
 
 #include "ErrorDef.h"
 #include "Util.h"
