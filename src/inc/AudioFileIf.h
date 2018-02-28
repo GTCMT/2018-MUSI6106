@@ -71,7 +71,7 @@ public:
     */
     virtual Error_t closeFile () = 0;
 
-    /*! read data from file and increments read position
+    /*! read data from file and increment read position
     \param ppfAudioData: [channels][iNumFrames]
     \param iNumFrames: number of frames to read (per channel), is updated to the number of frames actually read
     \return Error_t
