@@ -31,7 +31,7 @@ list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/AudioFileIO)
 list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/CombFilter) 
 list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Fft) 
 #list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Dtw) 
-#list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Vibrato) 
+list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Vibrato) 
 list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Tests/TestExec)
     
 # set includes
@@ -56,7 +56,7 @@ option (WITH_CPPCHECKTARGET "Add target for cppcheck testing" ON)
 # ## tests
 
 # with tests or not
-option (WITH_TESTS "Use UnitTest++ for testing" OFF)
+option (WITH_TESTS "Use UnitTest++ for testing" ON)
 
 if (WITH_TESTS)
     include(AddCppcheckTest)
@@ -64,7 +64,7 @@ if (WITH_TESTS)
     
     # add tests here
     add_test(RingBuff ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec RingBuff)
-    add_test(RingBuff ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Fft)
+    add_test(Fft ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Fft)
     add_test(AudioIo ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec AudioIo "${CMAKE_SOURCE_DIR}/src/Tests/TestData/")
     add_test(CombFilter ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec CombFilter)
     add_test(Dtw ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Dtw)
