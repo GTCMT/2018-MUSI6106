@@ -70,7 +70,7 @@ if (WITH_TESTS)
     add_test(CombFilter ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec CombFilter)
     add_test(Dtw ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Dtw)
     add_test(Vibrato ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Vibrato)
-	add_test(Vibrato ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Ppm)
+	add_test(Ppm ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Ppm)
 
     add_cppcheck_test ()
 endif (WITH_TESTS)
