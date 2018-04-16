@@ -15,7 +15,7 @@ public:
 
     Error_t process(float *pfInput, float *pfOutput, int iInputLength);
 
-    Error_t getOutputLengthForInput(int iInputLength);
+    int getOutputLengthForInput(int iInputLength);
 
 private:
     int m_iOutputLength;
