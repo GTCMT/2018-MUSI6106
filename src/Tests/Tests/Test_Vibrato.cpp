@@ -11,6 +11,7 @@
 #include "Vector.h"
 
 #include "Vibrato.h"
+#include <iostream>
 
 SUITE(Vibrato)
 {
@@ -137,7 +138,9 @@ SUITE(Vibrato)
             while (iNumFramesRemaining > 0)
             {
 
-                int iNumFrames = std::min(iNumFramesRemaining, rand()/RAND_MAX*17000);
+                int randnum = rand()/RAND_MAX*17000;
+                int iNumFrames = std::min(iNumFramesRemaining, randnum);
+                std::cout << randnum << std::endl;
 
                 for (int c = 0; c < m_iNumChannels; c++)
                 {

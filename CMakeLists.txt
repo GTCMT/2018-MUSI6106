@@ -33,6 +33,7 @@ list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Fft)
 list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Dtw) 
 list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Vibrato) 
 list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Ppm)
+list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Convolution)
 list (APPEND PROJECT_DIRECTORIES ${CMAKE_SOURCE_DIR}/src/Tests/TestExec)
     
 # set includes
@@ -70,7 +71,8 @@ if (WITH_TESTS)
     add_test(CombFilter ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec CombFilter)
     add_test(Dtw ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Dtw)
     add_test(Vibrato ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Vibrato)
-	add_test(Ppm ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Ppm)
+    add_test(Ppm ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Ppm)
+    add_test(Convolution ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestExec Convolution)
 
     add_cppcheck_test ()
 endif (WITH_TESTS)
