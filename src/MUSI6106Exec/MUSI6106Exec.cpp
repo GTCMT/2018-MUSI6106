@@ -1,162 +1,146 @@
 
-#include <ctime>
 #include <iostream>
-#include <fstream>
+#include <ctime>
 
 #include "MUSI6106Config.h"
 
-#include "Dtw.h"
+#include "AudioFileIf.h"
+#include "Convolution.h"
 
 using std::cout;
 using std::endl;
 
 // local function declarations
 void    showClInfo ();
-void    clLoadMatrixFromFile(float **ppfMatrix, std::ifstream &FFile, int iNumRows, int iNumCols);
-void    clLoadIntMatrixFromFile(int **ppiMatrix, std::ifstream &FFile, int iNumRows, int iNumCols);
-int     clGetNumCols(std::ifstream &FFile);
-int     clGetNumRows(std::ifstream &FFile);
-
-static const int kNumRuns = 100;
 
 /////////////////////////////////////////////////////////////////////////////////
 // main function
 int main(int argc, char* argv[])
 {
-    std::string             sMatrixFilePath,                 //!< file paths
-        sAlignmentFilePath;
+    std::string             sInputFilePath,                 //!< file paths
+                            sIrFilePath,
+                            sOutputFilePath;
 
-    clock_t                 TimeInTicks = 0;
+    static const int        kBlockSize = 1024;
 
-    CDtw                    DtwInstance ;
+    clock_t                 time = 0;
 
-    std::ifstream           FMatrixFile,
-        FPathFile;
+    float                   **ppfInputData = 0;
+    float                   **ppfIrData = 0;
+    float                   **ppfOutputData = 0;
 
-    int                     aiDistanceDim[2],
-        aiTargetPathDim[2];
+    CAudioFileIf            *phInputFile = 0;
+    CAudioFileIf            *phIrFile = 0;
+    CAudioFileIf            *phOutputFile = 0;
 
-    float   **ppfDistanceMatrix = 0;
-    int     **ppiTargetPath     = 0;
-    int     **ppiResultPath     = 0;
+    CAudioFileIf::FileSpec_t stInputFileSpec;
+    CAudioFileIf::FileSpec_t stIrFileSpec;
+    CAudioFileIf::FileSpec_t stOutputFileSpec;
 
+    long long iIrLength = 0;
+
+    CConvolution            *phConvolution = 0;
 
     showClInfo();
 
-
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
-    if (argc < 3)
+    if (argc < 2)
     {
-        cout << "Missing target alignment path!";
+        cout << "Missing audio input path!";
         return -1;
     }
-    else if (argc < 2)
+    else if (argc < 3)
     {
-        cout << "Missing distance matrix path!";
+        cout << "Missing IR file path!";
         return -1;
     }
     else
     {
-        sMatrixFilePath = argv[1];
-        sAlignmentFilePath = argv[2];
+        sInputFilePath = argv[1];
+        sIrFilePath = argv[2];
+        sOutputFilePath = sInputFilePath + "_conv.wav";
     }
 
     //////////////////////////////////////////////////////////////////////////////
-    // open the input files
-    FMatrixFile.open(sMatrixFilePath, std::ios::out);
-    if (!FMatrixFile.is_open())
+    // open the input wave files
+    CAudioFileIf::create(phInputFile);
+    phInputFile->openFile(sInputFilePath, CAudioFileIf::kFileRead);
+    if (!phInputFile->isOpen())
     {
-        cout << endl << "input file (matrix) could not be opened!" << endl << endl;
-        exit(-1);
+        cout << "Wave file open error!";
+        return -1;
     }
-    FPathFile.open(sAlignmentFilePath, std::ios::out);
-    if (!FPathFile.is_open())
+    phInputFile->getFileSpec(stInputFileSpec);
+
+    CAudioFileIf::create(phIrFile);
+    phIrFile->openFile(sIrFilePath, CAudioFileIf::kFileRead);
+    if (!phIrFile->isOpen())
     {
-        cout << endl << "input file (path) could not be opened!" << endl << endl;
-        exit(-1);
+        cout << "Wave file open error!";
+        return -1;
     }
+    phIrFile->getFileSpec(stIrFileSpec);
+
 
     //////////////////////////////////////////////////////////////////////////////
-    // get the input file dimensions
-    aiDistanceDim[0]    = clGetNumRows(FMatrixFile);
-    aiDistanceDim[1]    = clGetNumCols(FMatrixFile);
-    aiTargetPathDim[0]  = clGetNumRows(FPathFile);
-    aiTargetPathDim[1]  = clGetNumCols(FPathFile);
+    // allocate memory for input audio
+    ppfInputData = new float*[stInputFileSpec.iNumChannels];
+    for (int i = 0; i < stInputFileSpec.iNumChannels; i++)
+        ppfInputData[i] = new float[kBlockSize];
+
+    // allocate memory for IR signal
+    phIrFile->getLength(iIrLength);
+    ppfIrData = new float*[stIrFileSpec.iNumChannels];
+    for (int i = 0; i < stIrFileSpec.iNumChannels; i++)
+        ppfIrData[i] = new float[iIrLength];
+
+    // allocate memory for output file
+
+    // allocate memory for convolution object
+    phConvolution = new CConvolution();
+
+    time = clock();
+
 
     //////////////////////////////////////////////////////////////////////////////
-    // allocate memory
-    ppfDistanceMatrix = new float*[aiDistanceDim[0]];
-    for (int i = 0; i < aiDistanceDim[0]; i++)
-        ppfDistanceMatrix[i] = new float[aiDistanceDim[1]];
-    ppiTargetPath = new int*[aiTargetPathDim[0]];
-    for (int i = 0; i < aiTargetPathDim[0]; i++)
+    phIrFile->readData(ppfIrData, iIrLength);
+
+    // change these into block-wise multithread operation
+    // only use the first channel for both input and IR (0)
+
+    // get audio data and write it to the output file
+    while (!phInputFile->isEof())
     {
-        ppiTargetPath[i] = new int[aiTargetPathDim[1]];
-    }
-    ppiResultPath = new int*[aiTargetPathDim[1]];
-    for (int i = 0; i < aiTargetPathDim[1]; i++)
-    {
-        ppiResultPath[i] = new int[aiTargetPathDim[0]];
-    }
+        long long iNumFrames = kBlockSize;
+        phInputFile->readData(ppfInputData, iNumFrames);
 
-    //////////////////////////////////////////////////////////////////////////////
-    // read data
-    clLoadMatrixFromFile(ppfDistanceMatrix, FMatrixFile, aiDistanceDim[0], aiDistanceDim[1]);
-    clLoadIntMatrixFromFile(ppiTargetPath, FPathFile, aiTargetPathDim[0], aiTargetPathDim[1]);
-
-    //////////////////////////////////////////////////////////////////////////////
-    // init instance
-    DtwInstance.init(aiDistanceDim[0], aiDistanceDim[1]);
-
-    TimeInTicks = clock();
-
-    for (int i = 0; i < kNumRuns; i++)
-    {
-        int     iLength     = 0;
-
-        DtwInstance.process(ppfDistanceMatrix);
-        iLength = DtwInstance.getPathLength();
-
-        if (iLength != aiTargetPathDim[0])
+        for (int i = 0; i < iNumFrames; i++)
         {
-            cout << "Invalid Result!" << endl;
-            break;
+            phConvolution->process(ppfInputData[0], ppfIrData[0], iNumFrames);
         }
-
-        DtwInstance.getPath(ppiResultPath);
-
     }
-    cout << "Time elapsed: " << (clock() - TimeInTicks)*1.F / CLOCKS_PER_SEC <<endl;
 
-    for (int i = 0; i < aiTargetPathDim[0]; i++)
-    {
-        for(int j = 0; j < aiTargetPathDim[1]; j++)
-            if (ppiResultPath[j][i] != ppiTargetPath[i][j])
-            {
-                cout << "Incorrect Path!" << endl;
-                break;
-            }
-    }
- 
+    cout << "reading/writing done in: \t" << (clock() - time)*1.F / CLOCKS_PER_SEC << " seconds." << endl;
+
     //////////////////////////////////////////////////////////////////////////////
     // clean-up
-    for (int i = 0; i < aiTargetPathDim[0]; i++)
-    {
-        delete[] ppiTargetPath[i];
-    }
-    delete[] ppiTargetPath;
-    for (int i = 0; i < aiTargetPathDim[1]; i++)
-    {
-        delete[] ppiResultPath[i];
-    }
-    delete[] ppiResultPath;
-    for (int i = 0; i < aiDistanceDim[0]; i++)
-    {
-        delete[] ppfDistanceMatrix[i];
-    }
-    FMatrixFile.close();
-    FPathFile.close();
+    CAudioFileIf::destroy(phInputFile);
+    CAudioFileIf::destroy(phIrFile);
+    CAudioFileIf::destroy(phOutputFile);
+
+    for (int i = 0; i < stInputFileSpec.iNumChannels; i++)
+        delete[] ppfInputData[i];
+    delete[] ppfInputData;
+    ppfInputData = 0;
+
+    for (int i = 0; i < stIrFileSpec.iNumChannels; i++)
+        delete[] ppfIrData[i];
+    delete[] ppfIrData;
+    ppfIrData = 0;
+
+    delete phConvolution;
+    phConvolution = 0;
 
     return 0;
 
@@ -172,83 +156,3 @@ void     showClInfo()
     return;
 }
 
-int clGetNumRows(std::ifstream &FFile)
-{
-    int iNumOfRows = 0;
-
-    // check num of input file elements
-    while (!FFile.eof())
-    {
-        FFile.ignore(INT_MAX, '\n');
-        iNumOfRows++;
-    }
-    iNumOfRows--;
-    FFile.clear();
-    FFile.seekg(0, std::ios::beg);
-
-    return iNumOfRows;
-}
-
-int clGetNumCols(std::ifstream &FFile)
-{
-    int iNumOfRows = 0,
-        iNumOfCols = 0;
-    float fDummy;
-
-    // check num of input file elements
-    while (!FFile.eof())
-    {
-        FFile.ignore(INT_MAX, '\n');
-        iNumOfRows++;
-    }
-    iNumOfRows--;
-    FFile.clear();
-    FFile.seekg(0, std::ios::beg);
-
-    while (!FFile.eof())
-    {
-        FFile >> fDummy;
-        iNumOfCols++;
-    }
-    iNumOfCols--;
-    FFile.clear();
-    FFile.seekg(0, std::ios::beg);
-
-    return iNumOfCols / iNumOfRows;
-}
-
-void clLoadMatrixFromFile(float **ppfMatrix, std::ifstream &FFile, int iNumRows, int iNumCols)
-{
-    int i, j;
-
-    // read file
-    for (i = 0; i < iNumRows; i++)
-    {
-        for (j = 0; j < iNumCols; j++)
-            FFile >> ppfMatrix[i][j];
-    }
-    FFile.clear();
-    FFile.seekg(0, std::ios::beg);
-
-    return;
-}
-
-void clLoadIntMatrixFromFile(int **ppiMatrix, std::ifstream &FFile, int iNumRows, int iNumCols)
-{
-    int i, j;
-
-    // read file
-    for (i = 0; i < iNumRows; i++)
-    {
-        for (j = 0; j < iNumCols; j++)
-        {
-            float fTmp = 0;
-            FFile >> fTmp;
-            ppiMatrix[i][j] = static_cast<int>(fTmp-.5F);
-        }
-    }
-    FFile.clear();
-    FFile.seekg(0, std::ios::beg);
-
-    return;
-}
